@@ -6,16 +6,98 @@ const url =process.env.url;
 const { Console } = require('console');
 const app = express();
 const port = 4000;
-const router = require('./Router/authentification')
+const auth = require('./Router/authentification')
+const jwt = require('jsonwebtoken');
+const secret_key = crypto.randomBytes(32).toString('hex')
 mongoose.connect(url)
 .then(console.log("you are connected"))
 .catch((e) => {
     console.error('Failed to connect to MongoDB:', e.message);
   })
   app.use(express.json());
-  app.use('/', router);  
+  app.use('/', auth);  
+const post=[
+  {name: "laila"},
+  {name: "samira"}
+]
+const tokenTab = []
+app.post('/signup1',(req, res) => {
+  
+    const { name } = req.body;
+    const existingUser = post.filter(p=> p.name === name);
 
-    
+    if (existingUser.length) {
+      return res.status(400).json({ message: 'Nom d\'utilisateur déjà pris' });
+    }
+
+    post.push({name: name})
+
+    res.status(201).json({ message: 'le post créé avec succès' });
+});
+app.post('/login1',(req, res) => {
+  
+    const {name} = req.body;
+    const existingUser = post.filter(p=> p.name === name);
+
+    if (!existingUser){
+      return res.status(401).json({ message: 'Nom d\'utilisateur ou mot de passe incorrect' });
+    }
+    const user ={
+    name: name
+    }
+    const token = generateJwtToken(user);
+    tokenTab.push(token);
+    res.json({ token })
+    console.log(post);
+});
+app.post("/auth", (req,res)=>{
+  const token = req.body.token;
+  if(tokenTab.includes(token)){
+    res.send('you have the access')
+  }else{
+    res.status(404).send('you do not have the access')
+  }
+})
+function generateJwtToken(user) {
+  const payload = {
+    sub: user._id,
+    name:user.name
+  };
+  const secretKey = secret_key; // Remplacez ceci par votre clé secrète pour la signature JWT
+  const options = {
+    expiresIn: '1d', // Durée de validité du jeton (par exemple, 1 jour)
+  };
+  return jwt.sign(payload, secretKey, options);
+}  
+/*app.get('/', verifyToken, (req, res) => {
+  res.status(200).json({ message: 'Protected route accessed' });
+
+  });*/
+
+  function verifyToken(req, res, next) {
+  const token = req.header('Authorization');
+  if (!token) return res.status(401).json({ error: 'Access denied' });
+  try {
+   const decoded = jwt.verify(token, secret_key);
+   req.userId = decoded.userId;
+   next();
+   } catch (error) {
+   res.status(401).json({ error: 'Invalid token' });
+   }
+   };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.listen(port, ()=>{
   console.log(`app listining at http://localhost:${port}/`);

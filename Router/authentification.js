@@ -1,11 +1,12 @@
 const express = require("express"); 
 const mongoose = require('mongoose');
-const User = require("../schema")
+const User = require("../Schemas/schema")
 const jwt = require('jsonwebtoken');
-const router = express.Router();
+const auth = express.Router();
 const crypto = require('crypto');
-
-router.post('/signup', async (req, res) => {
+const router = require("./router")
+const secret_key =crypto.randomBytes(32).toString('hex');
+auth.post('/signup', async (req, res) => {
     try {
       const { name, password } = req.body;
       const existingUser = await User.find({ name:name, password:password});
@@ -23,7 +24,7 @@ router.post('/signup', async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de la création du compte' });
     }
   });
-router.post('/login', async (req, res) => {
+auth.post('/login', async (req, res) => {
     try {
       const { username, password } = req.body;
       const user = await User.findOne({ username });
@@ -45,11 +46,27 @@ router.post('/login', async (req, res) => {
       name:user.name,
       password:user.password
     };
-    const secretKey = crypto.randomBytes(32).toString('hex'); // Remplacez ceci par votre clé secrète pour la signature JWT
+    const secretKey = secret_key; // Remplacez ceci par votre clé secrète pour la signature JWT
     const options = {
       expiresIn: '1d', // Durée de validité du jeton (par exemple, 1 jour)
     };
     return jwt.sign(payload, secretKey, options);
   }
-  
-  module.exports = router;
+  auth.get('/', verifyToken, (req, res) => {
+    auth.use('/recipes',router);
+    res.status(200).json({ message: 'Protected route accessed' });
+    
+    });  
+
+  function verifyToken(req, res, next) {
+    const token = req.header('Authorization');
+    if (!token) return res.status(401).json({ error: 'Access denied' });
+    try {
+     const decoded = jwt.verify(token, secret_key);
+     req.userId = decoded.userId;
+     next();
+     } catch (error) {
+     res.status(401).json({ error: 'Invalid token' });
+     }
+     };
+  module.exports = auth;
