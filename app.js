@@ -1,14 +1,13 @@
 const crypto = require('crypto');
 const mongoose = require('mongoose');
-const User = require("./schema")
-const secretKey = crypto.randomBytes(32).toString('hex');
 const express = require('express');
-const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const url =process.env.url;
 const { Console } = require('console');
 const app = express();
 const port = 4000;
 const router = require('./Router/authentification')
-mongoose.connect("mongodb+srv://aichaazeroual03:DzGFNs7ckBEBl8gt@cluster0.o3qmn3i.mongodb.net/?retryWrites=true&w=majority")
+mongoose.connect(url)
 .then(console.log("you are connected"))
 .catch((e) => {
     console.error('Failed to connect to MongoDB:', e.message);
