@@ -56,7 +56,7 @@ auth.post('/login', async (req, res) => {
     auth.use('/recipes',router);
     res.status(200).json({ message: 'Protected route accessed' });
     
-    });
+    });  
 
   function verifyToken(req, res, next) {
     const token = req.header('Authorization');
