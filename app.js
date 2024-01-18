@@ -5,7 +5,7 @@ require('dotenv').config();
 const url =process.env.url;
 const { Console } = require('console');
 const app = express();
-const port = 4000;
+const port = 5000;
 const auth = require('./Router/authentification')
 const jwt = require('jsonwebtoken');
 const secret_key = crypto.randomBytes(32).toString('hex')
@@ -63,9 +63,9 @@ function generateJwtToken(user) {
     sub: user._id,
     name:user.name
   };
-  const secretKey = secret_key; // Remplacez ceci par votre clé secrète pour la signature JWT
+  const secretKey = secret_key; 
   const options = {
-    expiresIn: '1d', // Durée de validité du jeton (par exemple, 1 jour)
+    expiresIn: '1d', 
   };
   return jwt.sign(payload, secretKey, options);
 }  
