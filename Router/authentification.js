@@ -54,6 +54,7 @@ auth.post('/login', async (req, res) => {
     };
     return jwt.sign(payload, secretKey, options);
   }
+  //Protect Routes & Use Authentication Middleware
   auth.get('/', verifyToken, (req, res) => {
     auth.use('/recipes', verifyToken, router);
     res.status(200).json({ message: 'Protected route accessed' });
