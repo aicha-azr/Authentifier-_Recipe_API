@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const Recipe = require('../Schemas/recipe');
 const router = express.Router();
+// get recipes by dishType
 router.get('/:type', async (req,res)=>{
     try {
         const recipes = await Recipe.find({ dishType: req.params.type });
@@ -16,6 +17,7 @@ router.get('/:type', async (req,res)=>{
         res.status(500).send('Internal Server Error');
       }
 })
+// delete a recipe by its name
 router.delete('/:type/:name', async (req,res)=>{
     try {
         const result = await Recipe.deleteOne({ dishType: req.params.type, name: req.params.name });
@@ -30,6 +32,7 @@ router.delete('/:type/:name', async (req,res)=>{
         res.status(500).send('Internal Server Error');
       }
 })
+// create a recipe
 router.post('/', async (req,res)=>{
     try {
         const result = await Recipe.create({
@@ -45,6 +48,7 @@ router.post('/', async (req,res)=>{
         res.status(500).send('Internal Server Error');
       }
 })
+// update a recipe by its name
 router.put('/:name', async (req, res) => {
     try {
       const existingRecipe = await Recipe.findOne({ name: req.params.name });
@@ -69,4 +73,16 @@ router.put('/:name', async (req, res) => {
       res.status(500).send('Internal Server Error');
     }
   });
+  // get recipes using query
+router.get('/', async(req,res)=>{
+ try{
+  const query= req.query.dishType;
+  console.log(query)
+  const getRecipe = await Recipe.find({dishType :query});
+  res.status(200).json(getRecipe)
+  console.log('Retrieved recipes:', getRecipe);
+ }catch(e){
+  res.status(500).send('internal server error')
+ }
+})  
 module.exports = router;

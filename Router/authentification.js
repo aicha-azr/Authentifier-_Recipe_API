@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const User = require("../Schemas/schema")
 const jwt = require('jsonwebtoken');
 const auth = express.Router();
-const crypto = require('crypto');
 const router = require("./router")
 const bcrypt = require('bcrypt');
 const secret_key = process.env.secret_key;
 const saltRounds = 10;
+///// sign up
 auth.post('/signup', async (req, res) => {
     try {
       const { name, password } = req.body;
@@ -27,11 +27,13 @@ auth.post('/signup', async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de la création du compte' });
     }
   });
+  //// log in 
 auth.post('/login', async (req, res) => {
     try {
-      const { username, password } = req.body;
-      const user = await User.findOne({ username });
-  
+      const { name, password } = req.body;
+      const user = await User.findOne({ name: name });
+      console.log(user);
+      
       if (!user || !(user.password === password)) {
         return res.status(401).json({ message: 'Nom d\'utilisateur ou mot de passe incorrect' });
       }
@@ -43,6 +45,7 @@ auth.post('/login', async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de l\'authentification' });
     }
   });
+  /// to generate a token
   function generateJwtToken(user) {
     const payload = {
       sub: user._id,
@@ -54,13 +57,13 @@ auth.post('/login', async (req, res) => {
     };
     return jwt.sign(payload, secretKey, options);
   }
-  //Protect Routes & Use Authentication Middleware
+  //Protect Routes 
   auth.get('/', verifyToken, (req, res) => {
     auth.use('/recipes', verifyToken, router);
     res.status(200).json({ message: 'Protected route accessed' });
     
     });  
-
+    /// to verify the token :: Authentication Middleware
   function verifyToken(req, res, next) {
     const token = req.header('Authorization');
     if (!token) return res.status(401).json({ error: 'Access denied' });
