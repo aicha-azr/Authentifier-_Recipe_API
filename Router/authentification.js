@@ -5,17 +5,20 @@ const jwt = require('jsonwebtoken');
 const auth = express.Router();
 const crypto = require('crypto');
 const router = require("./router")
-const secret_key =crypto.randomBytes(32).toString('hex');
+const bcrypt = require('bcrypt');
+const secret_key = process.env.secret_key;
+const saltRounds = 10;
 auth.post('/signup', async (req, res) => {
     try {
       const { name, password } = req.body;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
       const existingUser = await User.find({ name:name, password:password});
   
       if (existingUser.length >0) {
         return res.status(400).json({ message: 'Nom d\'utilisateur déjà pris' });
       }
   
-      const newUser = new User({ name:name, password:password});
+      const newUser = new User({ name:name, password:hashedPassword});
       await newUser.save();
   
       res.status(201).json({ message: 'Compte créé avec succès' });
@@ -43,17 +46,16 @@ auth.post('/login', async (req, res) => {
   function generateJwtToken(user) {
     const payload = {
       sub: user._id,
-      name:user.name,
-      password:user.password
+      name:user.name
     };
-    const secretKey = secret_key; // Remplacez ceci par votre clé secrète pour la signature JWT
+    const secretKey = secret_key; 
     const options = {
-      expiresIn: '1d', // Durée de validité du jeton (par exemple, 1 jour)
+      expiresIn: '1d', 
     };
     return jwt.sign(payload, secretKey, options);
   }
   auth.get('/', verifyToken, (req, res) => {
-    auth.use('/recipes',router);
+    auth.use('/recipes', verifyToken, router);
     res.status(200).json({ message: 'Protected route accessed' });
     
     });  
