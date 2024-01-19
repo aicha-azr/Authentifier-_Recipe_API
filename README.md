@@ -8,7 +8,6 @@ Ce projet met en œuvre une API d'authentification pour gérer des recettes. Il 
 
 - [Installation](#installation)
 - [Utilisation](#utilisation)
-- [Configuration](#configuration)
 - [Endpoints API](#endpoints-api)
 
 
