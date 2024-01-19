@@ -3,77 +3,49 @@ const mongoose = require('mongoose');
 const User = require("../Schemas/schema")
 const jwt = require('jsonwebtoken');
 const auth = express.Router();
-const router = require("./recipiesRouter")
 const bcrypt = require('bcrypt');
 const secret_key = process.env.secret_key;
 const saltRounds = 10;
-const verifyToken = require("../middleware")
+const authController = require('../controllers/authController');
+
+/**
+ * @swagger
+ * tags:
+ *   name: Authentification
+ */
 ///// sign up
-auth.post('/signup', async (req, res) => {
-    try {
-      const { name, password } = req.body;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-      const existingUser = await User.find({ name:name, password:password});
-  
-      if (existingUser.length >0) {
-        return res.status(400).json({ message: 'Nom d\'utilisateur déjà pris' });
-      }
-  
-      const newUser = new User({ name:name, password:hashedPassword});
-      await newUser.save();
-  
-      res.status(201).json({ message: 'Compte créé avec succès' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Erreur lors de la création du compte' });
-    }
-  });
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Sing Up
+ *     description: L'inscription et la création de le compte d'utilisateur dans la base de données 
+ *     tags: [Authentification]
+ *     responses:
+ *       201: 
+ *         description: Compte créé avec succès
+ *       400:
+ *         description: Nom d\'utilisateur déjà pris
+ *       500:
+ *         description: Erreur lors de la création du compte
+ */
+auth.post('/signup',authController.signup);
   //// log in 
-auth.post('/login', async (req, res) => {
-    try {
-      const { name, password } = req.body;
-      const user = await User.findOne({ name: name });
-      console.log(user);
-      
-      if (!user || !(user.password === password)) {
-        return res.status(401).json({ message: 'Nom d\'utilisateur ou mot de passe incorrect' });
-      }
+  /**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login
+ *     description: Vérifier si l'utilisateur a déjà un compte 
+ *     tags: [Authentification]
+ *     responses:
+ *       201: 
+ *         description: Compte créé avec succès
+ *       401:
+ *         description: Nom d'utilisateur ou mot de passe incorrect
+ *       500:
+ *         description: Erreur lors de l\'authentification
+ */
+auth.post('/login',authController.login);
   
-      const token = generateJwtToken(user);
-      res.json({ token });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Erreur lors de l\'authentification' });
-    }
-  });
-  /// to generate a token
-  function generateJwtToken(user) {
-    const payload = {
-      sub: user._id,
-      name:user.name
-    };
-    const secretKey = secret_key; 
-    const options = {
-      expiresIn: '1d', 
-    };
-    return jwt.sign(payload, secretKey, options);
-  }
-  //Protect Routes 
- /*auth.get('/', verifyToken, (req, res) => {
-    auth.use('/recipes', verifyToken, router);
-    res.status(200).json({ message: 'Protected route accessed' });
-    
-    }); */
-    /// to verify the token :: Authentication Middleware
- /* function verifyToken(req, res, next) {
-    const token = req.header('Authorization');
-    if (!token) return res.status(401).json({ error: 'Access denied' });
-    try {
-     const decoded = jwt.verify(token, secret_key);
-     req.userId = decoded.userId;
-     next();
-     } catch (error) {
-     res.status(401).json({ error: 'Invalid token' });
-     }
-     };*/
   module.exports = auth;

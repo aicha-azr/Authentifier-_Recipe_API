@@ -7,7 +7,8 @@ const app = express();
 const port = 5001;
 const auth = require('./Router/authentification')
 const recepiesRouter = require("./Router/recipiesRouter")
-
+const {specs, swaggerUi} = require('./swagger');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 mongoose.connect(url)
 .then(console.log("you are connected"))
 .catch((e) => {

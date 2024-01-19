@@ -1,3 +1,4 @@
+const Recipe = require('../Schemas/recipe')
 const recipiesController ={
     retrieveRecipes: async(req,res)=>{
         
@@ -72,7 +73,11 @@ const recipiesController ={
         try{
          const query= req.query.dishType;
          console.log(query)
-         const getRecipe = await Recipe.find({dishType :query});
+         if(query == null){
+          const getRecipe = await Recipe.find();
+          return res.status(200).json(getRecipe)
+         }
+          const getRecipe = await Recipe.find({dishType :query});
          res.status(200).json(getRecipe)
          console.log('Retrieved recipes:', getRecipe);
         }catch(e){

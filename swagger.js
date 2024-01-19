@@ -7,10 +7,10 @@ const options = {
     info: {
       title: 'Recipe_API',
       version: '1.0.0',
-      description: 'avoir l\'acces à le livre de recette ',
+      description: 'avoir l\'acces à le livre de recette aprés s\'être authentifié  ',
     },
   },
-  apis: ['./routes/*.js'], // Spécifiez ici les chemins de vos fichiers contenant les commentaires JSDoc
+  apis: ['./Router/*.js'], // Spécifiez ici les chemins de vos fichiers contenant les commentaires JSDoc
 };
 
 const specs = swaggerJsdoc(options);
