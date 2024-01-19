@@ -3,10 +3,11 @@ const mongoose = require('mongoose');
 const User = require("../Schemas/schema")
 const jwt = require('jsonwebtoken');
 const auth = express.Router();
-const router = require("./router")
+const router = require("./recipiesRouter")
 const bcrypt = require('bcrypt');
 const secret_key = process.env.secret_key;
 const saltRounds = 10;
+const verifyToken = require("../middleware")
 ///// sign up
 auth.post('/signup', async (req, res) => {
     try {
@@ -58,13 +59,13 @@ auth.post('/login', async (req, res) => {
     return jwt.sign(payload, secretKey, options);
   }
   //Protect Routes 
-  auth.get('/', verifyToken, (req, res) => {
+ /*auth.get('/', verifyToken, (req, res) => {
     auth.use('/recipes', verifyToken, router);
     res.status(200).json({ message: 'Protected route accessed' });
     
-    });  
+    }); */
     /// to verify the token :: Authentication Middleware
-  function verifyToken(req, res, next) {
+ /* function verifyToken(req, res, next) {
     const token = req.header('Authorization');
     if (!token) return res.status(401).json({ error: 'Access denied' });
     try {
@@ -74,5 +75,5 @@ auth.post('/login', async (req, res) => {
      } catch (error) {
      res.status(401).json({ error: 'Invalid token' });
      }
-     };
+     };*/
   module.exports = auth;
