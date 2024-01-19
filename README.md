@@ -30,7 +30,7 @@ L'API sera accessible à l'adresse http://localhost:5001.
 
 Paramètres de la requête\
 name: Nom de l'utilisateur.\
-password: Mot de passe de l'utilisateur.\
+password: Mot de passe de l'utilisateur.
 #### POST /login:Authentifie un utilisateur et renvoie un jeton JWT.
 Paramètres de la requête.\
 username: Nom d'utilisateur.\
